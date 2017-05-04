@@ -39,7 +39,7 @@ function rcp_settings_menu() {
 		$url               = ( 'post' == $post_type ) ? 'edit.php' : 'edit.php?post_type=' . $post_type;
 		$slug              = ( 'post' == $post_type ) ? 'rcp-restrict' : 'rcp-restrict-' . $post_type;
 		$capability        = isset( $post_type_details->cap->edit_posts ) ? $post_type_details->cap->edit_posts : 'edit_posts';
-		add_submenu_page( $url, __( 'Restrict Access', 'rcp' ), __( 'Restrict Access', 'rcp' ), $capability, $slug, 'rcp_restrict_post_type' );
+		add_submenu_page( $url, __( 'Restrict Access', 'rcp' ), __( 'Restrict Access', 'rcp' ), $capability, $slug, 'rcp_restrict_post_type_page' );
 	}
 
 	if ( get_bloginfo('version') >= 3.3 ) {

@@ -15,7 +15,7 @@
  * @since 2.9
  * @return void
  */
-function rcp_restrict_post_type() {
+function rcp_restrict_post_type_page() {
 
 	$screen            = get_current_screen();
 	$post_type         = ! empty( $screen->post_type ) ? $screen->post_type : 'post';
@@ -30,7 +30,7 @@ function rcp_restrict_post_type() {
 					<?php
 					do_action( 'rcp_restrict_post_type_fields_before' );
 
-					include RCP_PLUGIN_DIR . 'includes/admin/restrict-post-type-view.php';
+					include RCP_PLUGIN_DIR . 'includes/admin/post-types/restrict-post-type-view.php';
 
 					do_action( 'rcp_restrict_post_type_fields_after' );
 					?>
@@ -44,6 +44,8 @@ function rcp_restrict_post_type() {
 
 /**
  * Save post type restrictions
+ *
+ * @todo Integrate with issue #1101 https://github.com/restrictcontentpro/restrict-content-pro/pull/1140
  *
  * @since 2.9
  * @return void
