@@ -1179,6 +1179,11 @@ class RCP_Member extends WP_User {
 		 * From this point on we assume the post has some kind of restrictions added.
 		 */
 
+		// If the user is pending email verification, they don't get access.
+		if ( $this->is_pending_verification() ) {
+			return apply_filters( 'rcp_member_can_access', false, $this->ID, $post_id, $this );
+		}
+
 		// If the user doesn't have an active account, they don't get access.
 		if( $this->is_expired() || ! in_array( $this->get_status(), array( 'active', 'free', 'cancelled' ) ) ) {
 			return apply_filters( 'rcp_member_can_access', false, $this->ID, $post_id, $this );
