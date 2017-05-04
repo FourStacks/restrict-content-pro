@@ -38,7 +38,7 @@ $user       = get_userdata( $payment->user_id );
 					<label for="rcp-amount"><?php _e( 'Amount', 'rcp' ); ?></label>
 				</th>
 				<td>
-					<input name="amount" id="rcp-amount" pattern="^[+\-]?[0-9]{1,3}(?:,?[0-9]{3})*(\.[0-9]{2})?$" title="<?php _e( 'Please enter a payment amount in the format of 1.99', 'rcp' ); ?>" min="0.00"  value="<?php echo esc_attr( $payment->amount ); ?>"/>
+					<input type="text" name="amount" id="rcp-amount" pattern="^[+\-]?[0-9]{1,3}(?:,?[0-9]{3})*(\.[0-9]{2})?$" title="<?php _e( 'Please enter a payment amount in the format of 1.99', 'rcp' ); ?>" min="0.00"  value="<?php echo esc_attr( $payment->amount ); ?>"/>
 					<p class="description"><?php _e( 'The amount of this payment', 'rcp' ); ?></p>
 				</td>
 			</tr>
@@ -70,6 +70,14 @@ $user       = get_userdata( $payment->user_id );
 						<option value="refunded"<?php selected( $payment->status, 'refunded' ); ?>><?php _e( 'Refunded', 'rcp' ); ?></option>
 					</select>
 					<p class="description"><?php _e( 'The status of this payment.', 'rcp' ); ?></p>
+				</td>
+			</tr>
+			<tr valign="top">
+				<th scope="row" valign="top">
+					<label for="rcp-status"><?php _e( 'Invoice', 'rcp' ); ?></label>
+				</th>
+				<td>
+					<a href="<?php echo esc_url( rcp_get_invoice_url( $payment_id ) ); ?>" class="button-secondary" target="_blank"><?php _e( 'View Invoice', 'rcp' ); ?></a>
 				</td>
 			</tr>
 		</tbody>

@@ -399,6 +399,10 @@ function rcp_email_member_on_renewal_payment_failure( RCP_Member $member, RCP_Pa
 	$subject = isset( $rcp_options['renewal_payment_failed_subject'] ) ? $rcp_options['renewal_payment_failed_subject'] : '';
 	$subject = apply_filters( 'rcp_subscription_renewal_payment_failed_subject', $subject, $member->ID, $status );
 
+	if ( empty( $subject ) || empty( $message ) ) {
+		return;
+	}
+
 	$emails = new RCP_Emails;
 	$emails->member_id = $member->ID;
 
@@ -677,6 +681,52 @@ function rcp_email_tag_amount( $member_id = 0, $payment_id = 0 ) {
 	}
 
 	return html_entity_decode( rcp_currency_filter( $payment->amount ), ENT_COMPAT, 'UTF-8' );
+}
+
+/**
+ * Email template tag: invoice_url
+ * URL to the member's most recent invoice.
+ *
+ * @param int $member_id  The member ID.
+ * @param int $payment_id The payment ID.
+ *
+ * @since 2.9
+ * @return string URL to the invoice.
+ */
+function rcp_email_tag_invoice_url( $member_id = 0, $payment_id = 0 ) {
+
+	/**
+	 * @var RCP_Payments $rcp_payments_db
+	 */
+	global $rcp_payments_db;
+
+	if ( ! empty( $payment_id ) ) {
+		$payment = $rcp_payments_db->get_payment( $payment_id );
+	} else {
+		$payment = $rcp_payments_db->get_payments( array(
+			'user_id' => $member_id,
+			'order'   => 'DESC',
+			'number'  => 1
+		) );
+
+		$payment = reset( $payment );
+	}
+
+	if ( empty( $payment ) || ! is_object( $payment ) ) {
+		$url = '';
+
+		// Use the page with [subscription_details] instead.
+		global $rcp_options;
+
+		if ( ! empty( $rcp_options['account_page'] ) ) {
+			$url = esc_url( get_permalink( $rcp_options['account_page'] ) );
+		}
+	} else {
+		$url = esc_url( rcp_get_invoice_url( $payment->id ) );
+	}
+
+	return $url;
+
 }
 
 /**

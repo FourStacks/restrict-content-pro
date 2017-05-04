@@ -59,17 +59,67 @@ class RCP_Discounts {
 	public function get_discounts( $args = array() ) {
 		global $wpdb;
 
+		$defaults = array(
+			'status' => 'all'
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+
 		$where = '';
 
-		// TODO: Add optional args for limit, order, etc
-		if( ! empty( $args['status'] ) )
-			$where = " WHERE status='{$args['status']}'";
+		// Filter by status.
+		if ( $args['status'] == 'active' ) {
+			$where = "WHERE `status` != 'disabled'";
+		} elseif ( $args['status'] == 'disabled' ) {
+			$where = "WHERE `status` = 'disabled'";
+		}
 
-		$discounts = $wpdb->get_results( "SELECT * FROM {$this->db_name}{$where};" );
+		// TODO: Add optional args for limit, order, etc
+
+		$discounts = $wpdb->get_results( "SELECT * FROM {$this->db_name} {$where};" );
 
 		if( $discounts )
 			return $discounts;
 		return false;
+
+	}
+
+	/**
+	 * Count the total number of discount codes in the database
+	 *
+	 * @param array $args Query arguments to override the defaults.
+	 *
+	 * @access public
+	 * @return int
+	 */
+	public function count( $args = array() ) {
+
+		global $wpdb;
+
+		$defaults = array(
+			'status' => 'all'
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+
+		$where = '';
+
+		// Filter by status.
+		if ( $args['status'] == 'active' ) {
+			$where = "WHERE `status` != 'disabled'";
+		} elseif ( $args['status'] == 'disabled' ) {
+			$where = "WHERE `status` = 'disabled'";
+		}
+
+		$key   = md5( 'rcp_discounts_count_' . serialize( $args ) );
+		$count = get_transient( $key );
+
+		if ( false === $count ) {
+			$count = $wpdb->get_var( "SELECT COUNT(ID) FROM {$this->db_name} {$where}" );
+			set_transient( $key, $count, 10800 );
+		}
+
+		return $count;
 
 	}
 
@@ -367,7 +417,7 @@ class RCP_Discounts {
 					`subscription_id`= '%d'
 				;",
 				sanitize_text_field( $args['name'] ),
-				strip_tags( addslashes( $args['description'] ) ),
+				strip_tags( $args['description'] ),
 				sanitize_text_field( $args['amount'] ),
 				$args['unit'],
 				sanitize_text_field( $args['code'] ),
@@ -382,6 +432,9 @@ class RCP_Discounts {
 			$discount_id = $wpdb->insert_id;
 
 			do_action( 'rcp_add_discount', $args, $discount_id );
+
+			delete_transient( md5( 'rcp_discounts_count_' . serialize( array( 'status' => 'all' ) ) ) );
+			delete_transient( md5( 'rcp_discounts_count_' . serialize( array( 'status' => $args['status'] ) ) ) );
 
 			return $discount_id;
 
@@ -436,7 +489,7 @@ class RCP_Discounts {
 					WHERE `id`        = '%d'
 				;",
 				sanitize_text_field( $args['name'] ),
-				strip_tags( addslashes( $args['description'] ) ),
+				strip_tags( $args['description'] ),
 				sanitize_text_field( $args['amount'] ),
 				$args['unit'],
 				sanitize_text_field( $args['code'] ),
@@ -450,6 +503,10 @@ class RCP_Discounts {
 		);
 
 		do_action( 'rcp_edit_discount', absint( $discount_id ), $args );
+
+		delete_transient( md5( 'rcp_discounts_count_' . serialize( array( 'status' => 'all' ) ) ) );
+		delete_transient( md5( 'rcp_discounts_count_' . serialize( array( 'status' => 'active' ) ) ) );
+		delete_transient( md5( 'rcp_discounts_count_' . serialize( array( 'status' => 'disabled' ) ) ) );
 
 		if( $update )
 			return true;
@@ -471,6 +528,10 @@ class RCP_Discounts {
 		global $wpdb;
 		do_action( 'rcp_delete_discount', $discount_id );
 		$remove = $wpdb->query( $wpdb->prepare( "DELETE FROM {$this->db_name} WHERE `id` = '%d';", absint( $discount_id ) ) );
+
+		delete_transient( md5( 'rcp_discounts_count_' . serialize( array( 'status' => 'all' ) ) ) );
+		delete_transient( md5( 'rcp_discounts_count_' . serialize( array( 'status' => 'active' ) ) ) );
+		delete_transient( md5( 'rcp_discounts_count_' . serialize( array( 'status' => 'disabled' ) ) ) );
 	}
 
 

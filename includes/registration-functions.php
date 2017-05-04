@@ -195,15 +195,19 @@ function rcp_process_registration() {
 	// Delete pending expiration date in case a previous registration was never completed.
 	delete_user_meta( $user_data['id'], 'rcp_pending_expiration_date' );
 
-	// If they're given proration credits, calculate the expiration date from today.
+	// If they're given proration credits and not manually renewing, calculate the expiration date from today.
 	$force_now = $auto_renew;
 	$prorated  = $member->get_prorate_credit_amount();
-	if ( ! $force_now && ! empty( $prorated ) ) {
+	if ( ! $force_now && ! empty( $prorated ) && rcp_get_subscription_id() != $subscription_id ) {
 		$force_now = true;
 	}
 
-	// Calculate the expiration date for the member
-	$member_expires = $member->calculate_expiration( $force_now, $trial_duration );
+	// Calculate the expiration date for the member. If full discount and auto renew is on, never expire.
+	if ( $full_discount && $auto_renew ) {
+		$member_expires = 'none';
+	} else {
+		$member_expires = $member->calculate_expiration( $force_now, $trial_duration );
+	}
 
 	update_user_meta( $user_data['id'], 'rcp_pending_expiration_date', $member_expires );
 
@@ -291,7 +295,7 @@ function rcp_process_registration() {
 			$subscription_data['fee'] = -1 * $subscription_data['price'];
 		}
 
-		update_user_meta( $user_data['id'], 'rcp_pending_subscription_amount', $subscription_data['price'] + $subscription_data['fee'] );
+		update_user_meta( $user_data['id'], 'rcp_pending_subscription_amount', round( $subscription_data['price'] + $subscription_data['fee'], 2 ) );
 
 		// send all of the subscription data off for processing by the gateway
 		rcp_send_to_gateway( $gateway, apply_filters( 'rcp_subscription_data', $subscription_data ) );
@@ -555,7 +559,7 @@ function rcp_remove_new_subscription_flag( $status, $user_id ) {
 	delete_user_meta( $user_id, '_rcp_old_subscription_id' );
 	delete_user_meta( $user_id, '_rcp_new_subscription' );
 }
-add_action( 'rcp_set_status', 'rcp_remove_new_subscription_flag', 999999999999, 2 );
+add_action( 'rcp_set_status', 'rcp_remove_new_subscription_flag', 9999999, 2 );
 
 /**
  * When upgrading subscriptions, the new level / key are stored as pending. Once payment is received, the pending
