@@ -773,9 +773,9 @@ function rcp_has_post_restrictions( $post_id ) {
  * @return array
  */
 function rcp_get_restricted_post_types() {
-	$restricted_post_types = get_option( 'rcp_restricted_post_types', array() );
+	return get_option( 'rcp_restricted_post_types', array() );
 
-	return apply_filters( 'rcp_restricted_post_types', $restricted_post_types );
+//	return apply_filters( 'rcp_restricted_post_types', $restricted_post_types );
 }
 
 /**
@@ -787,10 +787,11 @@ function rcp_get_restricted_post_types() {
  * @return array Array of restriction settings.
  */
 function rcp_get_post_type_restrictions( $post_type ) {
+//echo '<pre>'; print_r(wp_debug_backtrace_summary()); echo '</pre>'; //@todo remove this
 	$restricted_post_types = rcp_get_restricted_post_types();
-	$restrictions          = array_key_exists( $post_type, $restricted_post_types ) ? $restricted_post_types[ $post_type ] : array();
+	return array_key_exists( $post_type, $restricted_post_types ) ? $restricted_post_types[ $post_type ] : array();
 
-	return apply_filters( 'rcp_post_type_restrictions', $restrictions, $post_type, $restricted_post_types );
+//	return apply_filters( 'rcp_post_type_restrictions', $restrictions, $post_type, $restricted_post_types );
 }
 
 /**

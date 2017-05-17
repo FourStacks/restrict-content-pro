@@ -1165,13 +1165,37 @@ class RCP_Member extends WP_User {
 	 */
 	public function can_access( $post_id = 0 ) {
 
-		// Admins always get access.
-		if( user_can( $this->ID, 'manage_options' ) ) {
+		global $rcp_member_access_cache;
+
+		if ( ! is_a( $rcp_member_access_cache, 'RCP_Member_Access_Cache' ) ) {
+			$rcp_member_access_cache = new RCP_Member_Access_Cache;
+		}
+
+		$access_cache = $rcp_member_access_cache->can_access( $post_id );
+
+		if ( true === $access_cache ) {
 			return apply_filters( 'rcp_member_can_access', true, $this->ID, $post_id, $this );
 		}
 
+		if ( false === $access_cache ) {
+			return apply_filters( 'rcp_member_can_access', false, $this->ID, $post_id, $this );
+		}
+
+		// Admins always get access.
+		if( user_can( $this->ID, 'manage_options' ) ) {
+			$rcp_member_access_cache->cache_post_id_access( $post_id, true );
+			return apply_filters( 'rcp_member_can_access', true, $this->ID, $post_id, $this );
+		}
+
+		$rcp_member_access_cache->cache_post_restrictions( $post_id );
+
+		$cached_restrictions = $rcp_member_access_cache->get_post_restrictions( $post_id );
+
+		$is_restricted_content = $rcp_member_access_cache->is_restricted_content( $post_id );
+
 		// If the post is unrestricted, everyone gets access.
-		if( ! rcp_is_restricted_content( $post_id ) ) {
+		if ( ! $is_restricted_content ) {
+			$rcp_member_access_cache->cache_post_id_access( $post_id, true );
 			return apply_filters( 'rcp_member_can_access', true, $this->ID, $post_id, $this );
 		}
 
@@ -1181,15 +1205,23 @@ class RCP_Member extends WP_User {
 
 		// If the user is pending email verification, they don't get access.
 		if ( $this->is_pending_verification() ) {
+			$rcp_member_access_cache->cache_post_id_access( $post_id, false );
 			return apply_filters( 'rcp_member_can_access', false, $this->ID, $post_id, $this );
 		}
 
 		// If the user doesn't have an active account, they don't get access.
 		if( $this->is_expired() || ! in_array( $this->get_status(), array( 'active', 'free', 'cancelled' ) ) ) {
+			$rcp_member_access_cache->cache_post_id_access( $post_id, false );
 			return apply_filters( 'rcp_member_can_access', false, $this->ID, $post_id, $this );
 		}
 
-		$post_type_restrictions = rcp_get_post_type_restrictions( get_post_type( $post_id ) );
+		// Free members do not get access to Paid Only content.
+		if ( 'free' === $this->get_status() && $rcp_member_access_cache->is_paid_content( $post_id) ) {
+			$rcp_member_access_cache->cache_post_id_access( $post_id, false );
+			return apply_filters( 'rcp_member_can_access', false, $this->ID, $post_id, $this );
+		}
+
+		$post_type_restrictions = $cached_restrictions['post_type_restrictions'];
 		$sub_id                 = $this->get_subscription_id();
 
 		// Post or post type restrictions.
@@ -1256,7 +1288,6 @@ class RCP_Member extends WP_User {
 
 		// Check post access level restrictions.
 		if ( ! rcp_user_has_access( $this->ID, $access_level ) && $access_level > 0 ) {
-
 			$ret = false;
 
 		}
@@ -1269,7 +1300,7 @@ class RCP_Member extends WP_User {
 		}
 
 		// Check term restrictions.
-		$has_post_restrictions    = rcp_has_post_restrictions( $post_id );
+		$has_post_restrictions    = ! empty( $cached_restrictions['has_post_restrictions'] ) ? $cached_restrictions['has_post_restrictions'] : false;
 		$term_restricted_post_ids = rcp_get_post_ids_assigned_to_restricted_terms();
 
 		// since no post-level restrictions, check to see if user is restricted via term
@@ -1360,6 +1391,8 @@ class RCP_Member extends WP_User {
 				$ret = true;
 			}
 		}
+
+		$rcp_member_access_cache->cache_post_id_access( $post_id, $ret );
 
 		return apply_filters( 'rcp_member_can_access', $ret, $this->ID, $post_id, $this );
 

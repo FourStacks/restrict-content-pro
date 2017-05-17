@@ -146,25 +146,51 @@ function rcp_locate_template( $template_names, $load = false, $require_once = tr
  * @since 2.7
  * @return array
  */
-function rcp_post_classes( $classes, $class = '', $post_id = false ) {
-
-	$user_id = get_current_user_id();
+function rcp_post_classes( $classes, $class = '', $post_id = 0 ) {
 
 	if ( ! $post_id || is_admin() ) {
 		return $classes;
 	}
 
-	if ( rcp_is_restricted_content( $post_id ) ) {
+	global $rcp_member_access_cache;
+
+	if ( $rcp_member_access_cache->is_restricted_content( $post_id ) ) {
+
 		$classes[] = 'rcp-is-restricted';
 
-		$classes[] = rcp_user_can_access( $user_id, $post_id ) ? 'rcp-can-access' : 'rcp-no-access';
+		$classes[] = $rcp_member_access_cache->can_access( $post_id ) ? 'rcp-can-access' : 'rcp-no-access';
 	}
 
 	return $classes;
 
 }
-
 add_filter( 'post_class', 'rcp_post_classes', 10, 3 );
+
+/**
+ * Manages post-related hooks based on member access.
+ */
+function rcp_member_access_hooks() {
+
+	if ( is_admin() ) {
+		return;
+	}
+
+	global $post;
+
+	$member = new RCP_Member( get_current_user_id() );
+
+	$can_access = $member->can_access( $post->ID );
+
+	if ( ! $can_access ) {
+		add_filter( 'the_content', 'rcp_filter_restricted_content' );
+		add_filter( 'comments_template', 'rcp_hide_comments' );
+	} else {
+		remove_filter( 'the_content', 'rcp_filter_restricted_content' );
+		remove_filter( 'comments_template', 'rcp_hide_comments' );
+	}
+
+}
+add_action( 'the_post', 'rcp_member_access_hooks' );
 
 /**
  * Print notices on the front-end pages.

@@ -339,6 +339,7 @@ if( version_compare( PHP_VERSION, '5.3', '<' ) ) {
 		require_once( RCP_PLUGIN_DIR . 'includes/captcha-functions.php' );
 		include( RCP_PLUGIN_DIR . 'includes/query-filters.php' );
 		include( RCP_PLUGIN_DIR . 'includes/redirects.php' );
+		require_once RCP_PLUGIN_DIR . 'includes/class-rcp-member-access-cache.php';
 	}
 
 	// Set up database classes.

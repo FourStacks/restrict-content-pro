@@ -19,28 +19,22 @@
  * @return string Newly modified post content (possibly with teaser).
  */
 function rcp_filter_restricted_content( $content ) {
+
 	global $post, $rcp_options;
 
-	$user_id = get_current_user_id();
+	$message = ! empty( $rcp_options['free_message'] ) ? $rcp_options['free_message'] : false; // message shown for free content
 
-	$member = new RCP_Member( $user_id );
+	global $rcp_member_access_cache;
 
-	if ( ! $member->can_access( $post->ID ) ) {
-
-		$message = ! empty( $rcp_options['free_message'] ) ? $rcp_options['free_message'] : false; // message shown for free content
-
-		if ( rcp_is_paid_content( $post->ID ) || in_array( $post->ID, rcp_get_post_ids_assigned_to_restricted_terms() ) ) {
-			$message = ! empty( $rcp_options['paid_message'] ) ? $rcp_options['paid_message'] : false; // message shown for premium content
-		}
-
-		$message = ! empty( $message ) ? $message : __( 'This content is restricted to subscribers', 'rcp' );
-
-		return rcp_format_teaser( $message );
+	if ( $rcp_member_access_cache->is_paid_content( $post->ID ) || $rcp_member_access_cache->has_term_restrictions( $post->ID ) ) {
+		$message = ! empty( $rcp_options['paid_message'] ) ? $rcp_options['paid_message'] : false; // message shown for premium content
 	}
 
-	return $content;
+	$message = ! empty( $message ) ? $message : __( 'This content is restricted to subscribers', 'rcp' );
+
+	return rcp_format_teaser( $message );
 }
-add_filter( 'the_content', 'rcp_filter_restricted_content' , 100 );
+//add_filter( 'the_content', 'rcp_filter_restricted_content' , 100 );
 
 /**
  * Check the provided taxonomy along with the given post id to see if any restrictions are found
@@ -122,21 +116,10 @@ function rcp_is_post_taxonomy_restricted( $post_id, $taxonomy, $user_id = null )
  */
 function rcp_hide_comments( $template ) {
 
-	$post_id = get_the_ID();
+	return rcp_get_template_part( 'comments', 'no-access', false );
 
-	if( ! empty( $post_id ) ) {
-
-		if( ! rcp_user_can_access( get_current_user_id(), $post_id ) ) {
-
-			$template = rcp_get_template_part( 'comments', 'no-access', false );
-
-		}
-
-	}
-
-	return $template;
 }
-add_filter( 'comments_template', 'rcp_hide_comments', 9999999 );
+//add_filter( 'comments_template', 'rcp_hide_comments', 9999999 );
 
 /**
  * Format the teaser message. Default excerpt length is 50 words.
