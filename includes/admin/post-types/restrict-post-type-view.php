@@ -94,6 +94,7 @@ $role_set_display  = '' != $user_role ? '' : ' style="display:none;"';
 	<p>
 		<?php wp_nonce_field( 'rcp_save_post_type_restrictions', 'rcp_save_post_type_restrictions_nonce' ); ?>
 		<input type="hidden" name="rcp_post_type" value="<?php echo esc_attr( $post_type ); ?>">
+		<input type="hidden" name="rcp-action" value="save_post_type_restrictions"/>
 		<input type="submit" class="button button-primary" value="<?php esc_attr_e( 'Save', 'rcp' ); ?>">
 	</p>
 </form>

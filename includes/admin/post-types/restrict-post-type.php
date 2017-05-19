@@ -45,30 +45,22 @@ function rcp_restrict_post_type_page() {
 /**
  * Save post type restrictions
  *
- * @todo Integrate with issue #1101 https://github.com/restrictcontentpro/restrict-content-pro/pull/1140
- *
  * @since 2.9
  * @return void
  */
 function rcp_save_post_type_restrictions() {
 
-	if ( ! is_admin() ) {
-		return;
-	}
-
 	if ( ! isset( $_POST['rcp_save_post_type_restrictions_nonce'] ) || ! wp_verify_nonce( $_POST['rcp_save_post_type_restrictions_nonce'], 'rcp_save_post_type_restrictions' ) ) {
-		return;
+		wp_die( __( 'Nonce verification failed.', 'rcp' ), __( 'Error', 'rcp' ), array( 'response' => 403 ) );
 	}
 
 	$post_type = isset( $_POST['rcp_post_type'] ) ? $_POST['rcp_post_type'] : 'post';
 
 	// Check permissions
-	if ( 'page' == $post_type ) {
-		if ( ! current_user_can( 'edit_pages' ) ) {
-			return;
-		}
-	} elseif ( ! current_user_can( 'edit_posts' ) ) {
-		return;
+	$post_type_details = get_post_type_object( $post_type );
+	$capability        = isset( $post_type_details->cap->edit_posts ) ? $post_type_details->cap->edit_posts : 'edit_posts';
+	if ( ! current_user_can( $capability ) ) {
+		wp_die( __( 'You do not have permission to perform this action.', 'rcp' ), __( 'Error', 'rcp' ), array( 'response' => 403 ) );
 	}
 
 	$is_paid                     = false;
@@ -210,7 +202,7 @@ function rcp_save_post_type_restrictions() {
 
 }
 
-add_action( 'admin_init', 'rcp_save_post_type_restrictions' );
+add_action( 'rcp_action_save_post_type_restrictions', 'rcp_save_post_type_restrictions' );
 
 /**
  * Returns the URL to the post type restriction page
