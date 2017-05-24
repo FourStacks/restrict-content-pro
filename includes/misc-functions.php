@@ -739,7 +739,7 @@ function rcp_has_post_restrictions( $post_id ) {
 
 	$post_id = absint( $post_id );
 
-	if ( ! $restricted && rcp_is_paid_content( $post_id ) ) {
+	if ( ! $restricted && get_post_meta( $post_id, '_is_paid', true ) ) {
 		$restricted = true;
 	}
 
