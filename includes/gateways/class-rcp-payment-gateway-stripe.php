@@ -139,6 +139,7 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 		} else {
 
 			$customer->source = $_POST['stripeToken'];
+			$customer->save();
 
 		}
 
