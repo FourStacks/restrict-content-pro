@@ -143,6 +143,12 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 
 		}
 
+		try {
+			$customer->save();
+		} catch( Exception $e ) {
+			$this->handle_processing_error( $e );
+		}
+
 		if ( $this->auto_renew ) {
 
 			// process a subscription sign up
