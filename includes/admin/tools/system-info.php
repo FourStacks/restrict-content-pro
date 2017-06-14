@@ -56,6 +56,7 @@ function rcp_tools_system_info_report() {
 	$return .= 'Time Format:              ' . sprintf( '%s (%s)', get_option( 'time_format' ), date( get_option( 'time_format' ), current_time( 'timestamp' ) ) ) . "\n";
 	$return .= 'Timezone:                 ' . get_option( 'timezone_string' ) . "\n";
 	$return .= 'Membership:               ' . ( get_option( 'users_can_register' ) ? 'Enabled' : 'Disabled' ) . "\n";
+	$return .= 'Default Role:             ' . get_option( 'default_role' ) . "\n";
 
 	// RCP Config
 	$auto_renew_options         = array( 1 => 'Always auto renew', 2 => 'Never auto renew', 3 => 'Let customer choose whether to auto renew' );
