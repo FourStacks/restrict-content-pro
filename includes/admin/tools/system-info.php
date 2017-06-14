@@ -105,16 +105,40 @@ function rcp_tools_system_info_report() {
 
 	// RCP Misc Settings
 	$return .= "\n" . '-- RCP Misc Settings' . "\n\n";
-	$return .= 'Hide Premium Posts:               ' . ( ! empty( $rcp_options['hide_premium'] ) ? "True\n" : "False\n" );
+	$return .= 'Hide Restricted Posts:            ' . ( ! empty( $rcp_options['hide_premium'] ) ? "True\n" : "False\n" );
 	$return .= 'Redirect Page:                    ' . ( ! empty( $rcp_options['redirect_from_premium'] ) ? get_permalink( $rcp_options['redirect_from_premium'] ) . "\n" : "Unset\n" );
 	$return .= 'Redirect Default Login URL        ' . ( ! empty( $rcp_options['hijack_login_url'] ) ? "True\n" : "False\n" );
 	$return .= 'Login Page:                       ' . ( ! empty( $rcp_options['login_redirect'] ) ? get_permalink( $rcp_options['login_redirect'] ) . "\n" : "Unset\n" );
+	$return .= 'Content Excerpts:                 ' . ucwords( $rcp_options['content_excerpts'] ) . "\n";
 	$return .= 'Prevent Account Sharing:          ' . ( ! empty( $rcp_options['no_login_sharing'] ) ? "True\n" : "False\n" );
+	$return .= 'One Time Discounts                ' . ( ! empty( $rcp_options['one_time_discounts'] ) ? "True\n" : "False\n" );
+	$return .= 'Disable WordPress Toolbar         ' . ( ! empty( $rcp_options['disable_toolbar'] ) ? "True\n" : "False\n" );
 	$return .= 'Email IPN Reports:                ' . ( ! empty( $rcp_options['email_ipn_reports'] ) ? "True\n" : "False\n" );
 	$return .= 'Disable Form CSS:                 ' . ( ! empty( $rcp_options['disable_css'] ) ? "True\n" : "False\n" );
 	$return .= 'Enable reCaptcha:                 ' . ( ! empty( $rcp_options['enable_recaptcha'] ) ? "True\n" : "False\n" );
 	$return .= 'reCaptcha Site Key:               ' . ( ! empty( $rcp_options['recaptcha_public_key'] ) ? "Set\n" : "Unset\n" );
 	$return .= 'reCaptcha Secret Key:             ' . ( ! empty( $rcp_options['recaptcha_private_key'] ) ? "Set\n" : "Unset\n" );
+	$return .= 'Enable Debug Mode:                ' . ( ! empty( $rcp_options['debug_mode'] ) ? "True\n" : "False\n" );
+	$return .= 'Opt Into Beta:                    ' . ( ! empty( $rcp_options['show_beta_updates'] ) ? "True\n" : "False\n" );
+	$return .= 'Proration:                        ' . ( ! apply_filters( 'rcp_disable_prorate_credit', false, get_current_user_id() ) ? "Enabled\n" : "Disabled\n" );
+
+	// RCP Email Settings
+	$return .= "\n" . '-- RCP Email Settings' . "\n\n";
+	$return .= 'Email Verification:               ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ucwords( $rcp_options['email_verification'] ), ( ! empty( $rcp_options['verification_subject'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['verification_email'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Active Subscription (member):     ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_active_email'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['active_subject'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['active_email'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Active Subscription (admin):      ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_active_email_admin'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['active_subject_admin'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['active_email_admin'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Cancelled Subscription (member):  ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_cancelled_email'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['cancelled_subject'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['cancelled_email'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Cancelled Subscription (admin):   ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_cancelled_email_admin'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['cancelled_subject_admin'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['cancelled_email_admin'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Expired Subscription (member):    ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_expired_email'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['expired_subject'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['expired_email'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Expired Subscription (admin):     ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_expired_email_admin'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['expired_subject_admin'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['expired_email_admin'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Free Subscription (member):       ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_free_email'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['free_subject'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['free_email'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Free Subscription (admin):        ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_free_email_admin'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['free_subject_admin'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['free_email_admin'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Trial Subscription (member):      ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_trial_email'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['trial_subject'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['trial_email'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Trial Subscription (admin):       ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_trial_email_admin'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['trial_subject_admin'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['trial_email_admin'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Payment Received (member):        ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_payment_received_email'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['payment_received_subject'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['payment_received_email'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'Renewal Payment Failed (member):  ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_renewal_payment_failed_email'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['renewal_payment_failed_subject'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['renewal_payment_failed_email'] ) ? 'Set' : 'Not Set' ) ) . "\n";
+	$return .= 'New User Notifications:           ' . ( ! empty( $rcp_options['disable_new_user_notices'] ) ? 'Disabled' : 'Enabled' ) . "\n";
+	// @todo reminders
 
 	// RCP Templates
 	$files       = array();
