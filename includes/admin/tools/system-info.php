@@ -52,6 +52,9 @@ function rcp_tools_system_info_report() {
 	$return .= 'WP_DEBUG:                 ' . ( defined( 'WP_DEBUG' ) ? WP_DEBUG ? 'Enabled' : 'Disabled' : 'Not set' ) . "\n";
 	$return .= 'Memory Limit:             ' . WP_MEMORY_LIMIT . "\n";
 	$return .= 'Registered Post Stati:    ' . implode( ', ', get_post_stati() ) . "\n";
+	$return .= 'Date Format:              ' . sprintf( '%s (%s)', get_option( 'date_format' ), date( get_option( 'date_format' ), current_time( 'timestamp' ) ) ) . "\n";
+	$return .= 'Time Format:              ' . sprintf( '%s (%s)', get_option( 'time_format' ), date( get_option( 'time_format' ), current_time( 'timestamp' ) ) ) . "\n";
+	$return .= 'Timezone:                 ' . get_option( 'timezone_string' ) . "\n";
 
 	// RCP Config
 	$auto_renew_options         = array( 1 => 'Always auto renew', 2 => 'Never auto renew', 3 => 'Let customer choose whether to auto renew' );
