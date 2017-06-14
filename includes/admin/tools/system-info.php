@@ -89,6 +89,15 @@ function rcp_tools_system_info_report() {
 		$return .= 'Enabled Gateways:         None' . "\n";
 	}
 
+	// RCP subscription levels
+	$return .= "\n" . '-- RCP Subscription Levels' . "\n\n";
+	$levels = rcp_get_subscription_levels();
+	if ( ! empty( $levels ) ) {
+		foreach ( $levels as $level ) {
+			$return .= str_pad( $level->name . ':', 26 ) . sprintf( '%s; Price: %s; Duration: %s %s; Trial: %s %s', $level->status, $level->price, $level->duration, $level->duration_unit, $level->trial_duration, $level->trial_duration_unit ) . "\n";
+		}
+	}
+
 	// RCP Misc Settings
 	$return .= "\n" . '-- RCP Misc Settings' . "\n\n";
 	$return .= 'Hide Premium Posts:               ' . ( ! empty( $rcp_options['hide_premium'] ) ? "True\n" : "False\n" );
